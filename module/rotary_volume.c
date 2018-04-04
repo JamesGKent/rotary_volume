@@ -8,6 +8,7 @@
 
 MODULE_AUTHOR("James Kent");
 MODULE_DESCRIPTION("rotary encoder as volume control module");
+MODULE_ALIAS("rotary-volume");
 MODULE_LICENSE("GPL");
 
 static char *devicename = "rotary@4";
