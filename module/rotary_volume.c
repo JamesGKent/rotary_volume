@@ -35,7 +35,7 @@ static void send_key(int key) {
 int count = 0;
 
 static void rotary_event(struct input_handle *handle, unsigned int type, unsigned int code, int value) {
-	printk(KERN_DEBUG pr_fmt("Event. Dev: %s, Type: %d, Code: %d, Value: %d\n"), dev_name(&handle->dev->dev), type, code, value);
+//	printk(KERN_DEBUG pr_fmt("Event. Dev: %s, Type: %d, Code: %d, Value: %d\n"), dev_name(&handle->dev->dev), type, code, value);
 	if (type == EV_REL) {
 		if (code == reltype) {
 			int i;
