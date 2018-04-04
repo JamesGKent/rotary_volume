@@ -48,3 +48,39 @@ Ideally this would be replaced by a device tree overlay that would also enable t
 If you are on OSMC then the rotary encoder is available in the dev branch as I write this, requiring kernel 4.14.30-2 or newer.
 otherwise you could download the source directly [here](https://github.com/raspberrypi/linux/blob/rpi-4.16.y/drivers/input/misc/rotary_encoder.c), you could either try the latest branch, or get the version that matches your kernel.
 then use the makefile from the extras folder [here](https://github.com/JamesGKent/rotary_volume/blob/master/extras/rotary_encoder/Makefile)
+
+## This doesn't work with kodi?
+to use this with kodi required changing udev rules, because on load kodi grabs all input devices, this includes the rotary encoder event though it doesn't know what to do with any of the events from it. by changing the ownership of that input from `root:input` to `root:root` we can prevent it from being accesible to kodi, allowing this module to work as intended.
+on OSMC this can be achieved by editing `/etc/udef/rules.d/998-fix-input.rules` to contain the following:
+
+```
+# input
+KERNEL=="mouse*|mice|event*", MODE="0660", GROUP="osmc"
+KERNEL=="event*", DRIVERS=="rotary-encoder", MODE="0660", GROUP="root"
+KERNEL=="ts[0-9]*|uinput",      MODE="0660", GROUP="osmc"
+KERNEL=="js[0-9]*",             MODE="0660", GROUP="osmc"
+
+# tty
+SUBSYSTEM=="tty", KERNEL=="tty[0-9]*", GROUP="tty", MODE="0666"
+```
+
+## Testing
+you can test each stage by using evtest, if you have already set up the udev rules then this will need to be run as root.
+if you run `evtest` and select the rotary device you should see ea long list of supported keys ending in the volume keys, the driver will never send any other keys than volume up and down, however kodi ignored events from devices with 20 or less keys, so this is currently a hacky workaround to make kodi recognise this module.
+when you turn the rotary encoder you should see events come in, with code 9 (the axis we picked) and value of either 1 or -1, the positive events get turned into volume up presses, and negative becomes volume down.
+
+assuming the first test is successful we can then test this module by selecting it with `evtest`, again we should see evets come in when we turn the encoder, either KEY_VOLUMEUP or KEY_VOLUMEDOWN.
+
+## Optional settings
+when writing this module I only had a 400 pulse per revolution encoder available, so I wrote in the capability to require multiple "counts" before sending a keypress, this is the `count_per_press` variable [here](https://github.com/JamesGKent/rotary_volume/blob/master/module/rotary_volume.c#L21) reducing this number will result in more events, if you reduce it to 1 and its still not fast enough for your liking you could add either:
+```
+steps-per-period=2
+```
+or
+```
+steps-per-period=4
+```
+to the line in the config file for the rotary encoder, eg:
+```
+`dtoverlay=rotary-encoder:relative_axis=1,linux_axis=9,steps-per-period=2`
+```
