@@ -25,7 +25,7 @@ Then open terminal in the folder containing the source and makefile
 1. edit `/boot/config.txt` to add the following line:  
 `dtoverlay=rotary-encoder-overlay:relative_axis=1,linux_axis=9`
 2. sudo apt-get install rbp2-headers-$(uname -r)
-3. sudo ln -s /usr/src/rbp2-headers-$(uname -r) /lib/modules/$(uname -r/build
+3. sudo ln -s /usr/src/rbp2-headers-$(uname -r) /lib/modules/$(uname -r)/build
 4. make
 5. sudo make install
 
@@ -51,7 +51,7 @@ then use the makefile from the extras folder [here](https://github.com/JamesGKen
 
 ## This doesn't work with kodi?
 to use this with kodi required changing udev rules, because on load kodi grabs all input devices, this includes the rotary encoder event though it doesn't know what to do with any of the events from it. by changing the ownership of that input from `root:input` to `root:root` we can prevent it from being accesible to kodi, allowing this module to work as intended.
-on OSMC this can be achieved by editing `/etc/udef/rules.d/998-fix-input.rules` to contain the following:
+on OSMC this can be achieved by editing `/etc/udev/rules.d/998-fix-input.rules` to contain the following:
 
 ```
 # input
